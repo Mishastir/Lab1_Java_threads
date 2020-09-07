@@ -74,11 +74,6 @@ public class Main {
             System.out.printf("Thread \"%s\" ENDED INTERRUPT (sleeping thread) ____________ \n", thread.getName());
         }
 
-        for (Thread thread : threadsLimitedWithTime) {
-            System.out.printf("Thread \"%s\" STARTED join (sleeping thread) ()()()()()() \n", thread.getName());
-            thread.join();
-            System.out.printf("Thread \"%s\" ENDED join (sleeping thread) ____________ \n", thread.getName());
-        }
         System.out.println("Main end");
     }
 }
