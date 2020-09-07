@@ -23,58 +23,62 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        int numberOfThreads = getIntegerFromInput("number of processing threads");
-        int limit = getIntegerFromInput("limit for threads");
+    /**
+     * Get array filled with new Thread(PrintNumberRunnable(*))
+     *
+     * @param length Result array length
+     * @param limit  Limit to PrintNumberRunnable
+     * @return Thread[]
+     */
+    private static Thread[] getNewThreadsArray(int length, int limit) {
+        Thread[] resultArray = new Thread[length];
 
-        // Just set limits to be sure that everything will be computed without lags
-        if (numberOfThreads > 5) {
-            System.out.println("Entered number of threads is too big, number set to maximum allowed value: 5 threads");
-            numberOfThreads = 5;
-        }
-
-        Thread[] threadsLimitedWithNumber = new Thread[numberOfThreads];
-
-        for (int i = 0; i < threadsLimitedWithNumber.length; i++) {
+        for (int i = 0; i < resultArray.length; i++) {
             String threadName = THREAD_NAME_PREFIX + i;
 
             PrintNumberRunnable runnable = new PrintNumberRunnable(threadName, limit, System.out);
+            resultArray[i] = new Thread(runnable, threadName);
+        }
 
-            Thread thread = new Thread(runnable, threadName);
+        return resultArray;
+    }
 
-            threadsLimitedWithNumber[i] = thread;
+    public static void main(String[] args) throws Exception {
+        int numberOfThreads = getIntegerFromInput("number of processing threads");
+        int limit = getIntegerFromInput("limit for threads");
+        int timeout = getIntegerFromInput("time limited timeout");
 
+        Thread[] threadsLimitedWithNumber = Main.getNewThreadsArray(numberOfThreads, limit);
+
+        for (Thread thread : threadsLimitedWithNumber) {
             thread.start();
         }
 
         for (Thread thread : threadsLimitedWithNumber) {
-            if (thread.isInterrupted()) {
-                thread.join();
-            }
-        }
-
-        Thread[] threadsLimitedWithTime = new Thread[numberOfThreads];
-
-        for (int i = 0; i < threadsLimitedWithTime.length; i++) {
-            String threadName = THREAD_NAME_PREFIX + i + " (sleeping)";
-
-            PrintNumberRunnable runnable = new PrintNumberRunnable(threadName, limit, System.out, true);
-
-            Thread thread = new Thread(runnable, threadName);
-
-            threadsLimitedWithTime[i] = thread;
-
-            thread.start();
-
-            Thread.sleep(1000);
-            thread.interrupt();
-        }
-
-        // Foreach thread in threads
-        for (Thread thread : threadsLimitedWithTime) {
+            System.out.printf("Thread \"%s\" STARTED join ???????????? \n", thread.getName());
             thread.join();
+            System.out.printf("Thread \"%s\" ENDED join -----------! \n", thread.getName());
         }
 
+        Thread[] threadsLimitedWithTime = Main.getNewThreadsArray(numberOfThreads, limit);
+
+        for (Thread thread : threadsLimitedWithTime) {
+            thread.start();
+        }
+
+        Thread.sleep(timeout);
+
+        for (Thread thread : threadsLimitedWithTime) {
+            System.out.printf("Thread \"%s\" STARTED INTERRUPT (sleeping thread) ()()()()()() \n", thread.getName());
+            thread.interrupt();
+            System.out.printf("Thread \"%s\" ENDED INTERRUPT (sleeping thread) ____________ \n", thread.getName());
+        }
+
+        for (Thread thread : threadsLimitedWithTime) {
+            System.out.printf("Thread \"%s\" STARTED join (sleeping thread) ()()()()()() \n", thread.getName());
+            thread.join();
+            System.out.printf("Thread \"%s\" ENDED join (sleeping thread) ____________ \n", thread.getName());
+        }
         System.out.println("Main end");
     }
 }
